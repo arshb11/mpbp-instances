@@ -4,4 +4,4 @@ The Multi-Period Blending Problem (MPBP) is a network optimization problem that 
 ![image](https://github.com/user-attachments/assets/a6022488-2b2e-4ac5-83d5-a6985a70b3e7)
 
 
-This repository contains 60 instances that can be used by the community to benchmark models and algorithms applied to the blending problem. A standard MIQCP formulation and instance generator is also provided in case anyone wants to create new instances.
+This repository contains 60 instances that can be used by the community to benchmark models and algorithms applied to the blending problem. A monolithic MIQCP formulation and instance generator are also provided in case anyone wants to create and test new instances.
