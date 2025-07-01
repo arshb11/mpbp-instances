@@ -4,7 +4,7 @@ from utilities import convert_json_to_data, data_preprocessing
 from instance_generation import InstanceGenerator
 
 
-def minlp(data):
+def miqcp(data):
     # PYOMO MODEL
     m = pyo.ConcreteModel()
 
@@ -207,12 +207,17 @@ def minlp(data):
 
 
 if __name__ == "__main__":
+    # Opening instance
     with open('instances_json/instance_6.json', 'r') as f:
         json_obj = json.load(f)
     d = convert_json_to_data(json_obj)
 
-    m = minlp(d)
+    m = miqcp(d)    # building model
+    
+    # Solving with gurobi. If gurobi unavailable - can use any MIQCP/MINLP solver of choice
     opt = pyo.SolverFactory('gurobi')
     status = opt.solve(m, tee=True)
+
+    # Ensure optimal termination
     pyo.assert_optimal_termination(status)
 
