@@ -1,7 +1,7 @@
 import pyomo.environ as pyo
 import json
-from utilities import convert_json_to_data
-from pprint import pprint
+from utilities import convert_json_to_data, data_preprocessing
+from instance_generation import InstanceGenerator
 
 
 def minlp(data):
@@ -207,7 +207,7 @@ def minlp(data):
 
 
 if __name__ == "__main__":
-    with open('instances_json/instance_59.json', 'r') as f:
+    with open('instances_json/instance_6.json', 'r') as f:
         json_obj = json.load(f)
     d = convert_json_to_data(json_obj)
 

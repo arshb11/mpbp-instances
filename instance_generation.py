@@ -1,4 +1,5 @@
 import random
+from utilities import data_preprocessing
 
 
 class InstanceGenerator:
@@ -293,3 +294,4 @@ if __name__ == "__main__":
     inst_gen.seed(42)
     inst_gen.build_sets(n_supply=3, blend_arch=[2, 4], n_demand=2, n_time=6, n_qual=1)
     d = inst_gen.build_parameters(demand_TP=4, Fmax=50)
+    d = data_preprocessing(d)
