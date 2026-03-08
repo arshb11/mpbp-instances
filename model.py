@@ -208,7 +208,7 @@ def miqcp(data):
 
 if __name__ == "__main__":
     # Opening instance
-    with open('instances_json/instance_7.json', 'r') as f:
+    with open('instances_json/instance_6.json', 'r') as f:
         json_obj = json.load(f)
     d = convert_json_to_data(json_obj)
 
@@ -217,7 +217,5 @@ if __name__ == "__main__":
     # Solving with gurobi. If gurobi unavailable - can use any MIQCP/MINLP solver of choice
     opt = pyo.SolverFactory('gurobi')
     status = opt.solve(m, tee=True)
-
-    # Ensure optimal termination
     pyo.assert_optimal_termination(status)
 
