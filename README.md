@@ -1,5 +1,5 @@
 # mpbp-instances
-The Multi-Period Blending Problem (MPBP) is a network optimization problem that involves routing fluid within a set of tanks based on inlet flows, concentrations and demand specifications. The goal is to maximize operational profit while meeting demand specifications. The network generally includes a set of supply tanks, blending tanks and demand tanks. A figure is shown below of a general MPBP network architecture. For more information about the problem, model and decompositions please refer to our paper.
+The Multi-Period Blending Problem (MPBP) is a network optimization problem that involves routing fluid within a set of tanks based on inlet flows, concentrations and demand specifications. The goal is to maximize operational profit while meeting demand specifications. The network generally includes a set of supply tanks, blending tanks and demand tanks. A figure is shown below of a general MPBP network architecture. For more information about the problem, model and decompositions please refer to our [paper](https://pubs.acs.org/doi/10.1021/acs.iecr.5c02853).
 
 <img width="1094" height="649" alt="image" src="https://github.com/user-attachments/assets/80e67857-0884-4d7f-9615-a31feecd661d" />
 
@@ -18,6 +18,22 @@ The 60 instances have been generated to be more challenging than those found in 
 | Demand Tanks   | 2-4        |
 | Components     | 1-10       |
 | Time Periods   | 5-30       |
+
+## Citation
+If you are interested in our work and decide to use our instances, please cite our work:
+
+```
+@article{doi:10.1021/acs.iecr.5c02853,
+author = {Ovalle, Daniel and Bhatia, Arsh and Laird, Carl D. and Grossmann, Ignacio E.},
+title = {A Logic-Based Decomposition for the Global Optimization of the Multiperiod Blending Problem Using Symmetry-Breaking Cuts},
+journal = {Industrial \& Engineering Chemistry Research},
+volume = {65},
+number = {7},
+pages = {3981-3998},
+year = {2026},
+doi = {10.1021/acs.iecr.5c02853}
+}
+```
 
 ## References
 [1] Kolodziej S.P., Grossmann I.E., Furman K.C., Sawaya N.W., "A discretization-based approach for the optimization of the multiperiod blend scheduling problem", Computers and Chemical Engineering, 2013. [DOI](https://doi.org/10.1016/j.compchemeng.2013.01.016)
