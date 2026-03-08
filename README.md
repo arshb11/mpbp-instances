@@ -32,6 +32,7 @@ number = {7},
 pages = {3981-3998},
 year = {2026},
 doi = {10.1021/acs.iecr.5c02853}
+}
 ```
 
 ## References
