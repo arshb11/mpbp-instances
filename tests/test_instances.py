@@ -26,7 +26,7 @@ SMOKE_TIME_LIMIT = 5
 
 
 def load_instance(n: int) -> dict:
-    path = os.path.join(INSTANCES_DIR, f"instance_{n}.json")
+    path = os.path.join(INSTANCES_DIR, f"mpbp_{n}.json")
     with open(path, "r") as f:
         json_obj = json.load(f)
     return convert_json_to_data(json_obj)

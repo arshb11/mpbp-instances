@@ -208,7 +208,7 @@ def miqcp(data):
 
 if __name__ == "__main__":
     # Opening instance
-    with open('instances_json/instance_6.json', 'r') as f:
+    with open('instances_json/mpbp_6.json', 'r') as f:
         json_obj = json.load(f)
     d = convert_json_to_data(json_obj)
 
