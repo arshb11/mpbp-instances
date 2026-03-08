@@ -1,5 +1,5 @@
 # mpbp-instances
-The Multi-Period Blending Problem (MPBP) is a network optimization problem that involves routing fluid within a set of tanks based on inlet flows, concentrations and demand specifications. The goal is to maximize operational profit while meeting demand specifications. The network generally includes a set of supply tanks, blending tanks and demand tanks. A figure is shown below of a general MPBP network architecture. For more information about the problem, model and decompositions please refer to our paper.
+The Multi-Period Blending Problem (MPBP) is a network optimization problem that involves routing fluid within a set of tanks based on inlet flows, concentrations and demand specifications. The goal is to maximize operational profit while meeting demand specifications. The network generally includes a set of supply tanks, blending tanks and demand tanks. A figure is shown below of a general MPBP network architecture. For more information about the problem, model and decompositions please refer to our [paper](https://pubs.acs.org/doi/10.1021/acs.iecr.5c02853).
 
 <img width="1094" height="649" alt="image" src="https://github.com/user-attachments/assets/80e67857-0884-4d7f-9615-a31feecd661d" />
 
