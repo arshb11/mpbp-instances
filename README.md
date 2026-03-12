@@ -8,7 +8,7 @@ This repository contains 60 instances that can be used by the community to bench
 Along with this we have provided a Pyomo model for the monolithic MIQCP formulation that was proposed by Kolodziej et. al. [1] which can be found in [miqcp.py](miqcp.py)
 Currently, the script is set to solve instance 6, however you can change which instance you want to solve by editing that within the file. The `convert_json_to_data()` function allows you to convert the json file to a `dict` format readable for the model. 
 
-If you want to generate your own instance you can do so using the `InstanceGenerator` class found in [instance_generator.py](instance_generator.py). The instance generator takes information about the number of supply tanks, demand tanks, time periods, components, layout of the blending tanks and the time at what demand begins. If you want to see a mathematical description of the instance generation algorithm please refer to the Supplimental Information section of our paper.
+If you want to generate your own instance you can do so using the `InstanceGenerator` class found in [instance_generator.py](instance_generator.py). The instance generator takes information about the number of supply tanks, demand tanks, time periods, components, layout of the blending tanks and the time at what demand begins. If you want to see a mathematical description of the instance generation algorithm please refer to [instance_sizes](instance_sizes.pdf), or to the Supplimental Information section of our paper.
 
 The 60 instances have been generated to be more challenging than those found in literature. Some information about the set sizes can be found below:
 | Set            | Size Range |
