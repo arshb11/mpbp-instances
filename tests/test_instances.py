@@ -43,6 +43,7 @@ def make_solver(time_limit: int | None = None):
 # Test 1: All instances build and are accepted by Gurobi (smoke test)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize("instance_num", range(1, N_INSTANCES + 1))
 def test_instance_runs(instance_num):
     """

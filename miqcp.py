@@ -4,7 +4,22 @@ from utilities import convert_json_to_data, data_preprocessing
 from instance_generation import InstanceGenerator
 
 
-def miqcp(data):
+def miqcp(data: dict):
+    """
+    Build the multiperiod blending problem (MPBP) as a Pyomo MIQCP model.
+
+    Parameters
+    ----------
+    data : dict
+        Problem data dictionary loaded from a JSON instance file via
+        ``convert_json_to_data``.
+
+    Returns
+    -------
+    m : pyo.ConcreteModel
+        Pyomo MIQCP model ready for solution with a MIQCP/MINLP solver
+        (e.g., Gurobi).
+    """
     # PYOMO MODEL
     m = pyo.ConcreteModel()
 
@@ -78,15 +93,18 @@ def miqcp(data):
     # Flow activation
     @m.Constraint(m.A, m.T)
     def flow_activation_L(m, nin, nout, t):
+        """Lower bound on arc flow enforced only when the arc is active (X == 1)."""
         return m.F_bounds[nin, nout][0] * m.X[nin, nout, t] <= m.F[nin, nout, t]
 
     @m.Constraint(m.A, m.T)
     def flow_activation_U(m, nin, nout, t):
+        """Upper bound on arc flow enforced only when the arc is active (X == 1); sets flow to zero when inactive."""
         return m.F[nin, nout, t] <= m.F_bounds[nin, nout][1] * m.X[nin, nout, t]
 
     # Satisfy Blending specifications
     @m.Constraint(m.Q, m.A, m.T)
     def blend_specs_L(m, q, b, d, t):
+        """Big-M lower bound: when BD arc (b->d) is active, composition of blending tank b at t-1 must meet the demand lower spec for component q."""
         if b in m.B and d in m.D and t > 1:
             return (
                 m.CD_bounds[q, d][0] - m.C_bounds[q][1] * (1 - m.X[b, d, t])
@@ -97,6 +115,7 @@ def miqcp(data):
 
     @m.Constraint(m.Q, m.A, m.T)
     def blend_specs_U(m, q, b, d, t):
+        """Big-M upper bound: when BD arc (b->d) is active, composition of blending tank b at t-1 must meet the demand upper spec for component q."""
         if b in m.B and d in m.D and t > 1:
             return m.C[q, b, t - 1] <= m.CD_bounds[q, d][1] + m.C_bounds[q][1] * (
                 1 - m.X[b, d, t]
@@ -107,6 +126,7 @@ def miqcp(data):
     # Satisfy SD specifications
     @m.Constraint(m.Q, m.A, m.T)
     def sd_specs_L(m, q, s, d, t):
+        """Big-M lower bound: when SD arc (s->d) is active, the fixed supply composition CIN must meet the demand lower spec for component q."""
         if s in m.S and d in m.D:
             return (
                 m.CD_bounds[q, d][0] - m.C_bounds[q][1] * (1 - m.X[s, d, t])
@@ -117,6 +137,7 @@ def miqcp(data):
 
     @m.Constraint(m.Q, m.A, m.T)
     def sd_specs_U(m, q, s, d, t):
+        """Big-M upper bound: when SD arc (s->d) is active, the fixed supply composition CIN must meet the demand upper spec for component q."""
         if s in m.S and d in m.D:
             return m.CIN[q, s] <= m.CD_bounds[q, d][1] + m.C_bounds[q][1] * (
                 1 - m.X[s, d, t]
@@ -127,6 +148,7 @@ def miqcp(data):
     # Supply inventory balance
     @m.Constraint(m.S, m.T)
     def supply_bal(m, s, t):
+        """Inventory balance for supply tank s at time t."""
         if t == 1:
             return m.I[s, t] == m.I0[s] + m.FIN[s, t] - sum(
                 m.F[s, n, t] for n in m.Nout[s]
@@ -139,6 +161,7 @@ def miqcp(data):
     # Blending inventory balances
     @m.Constraint(m.B, m.T)
     def blend_bal(m, b, t):
+        """Inventory balance for blending tank b at time t, accounting for all inflows and outflows."""
         if t == 1:
             return m.I[b, t] == m.I0[b] + sum(m.F[n, b, t] for n in m.Nin[b]) - sum(
                 m.F[b, n, t] for n in m.Nout[b]
@@ -151,6 +174,7 @@ def miqcp(data):
     # Demand inventory balance
     @m.Constraint(m.D, m.T)
     def demand_bal(m, d, t):
+        """Inventory balance for demand tank d at time t. FD[d, t] is the withdrawn outflow."""
         if t == 1:
             return (
                 m.I[d, t] == m.I0[d] + sum(m.F[n, d, t] for n in m.Nin[d]) - m.FD[d, t]
@@ -164,6 +188,7 @@ def miqcp(data):
     # Bilinear balance
     @m.Constraint(m.Q, m.B, m.T)
     def bilinear_bal(m, q, b, t):
+        """Bilinear composition balance for component q in blending tank b at time t. Tracks how incoming flows from supplies and upstream blending tanks update the tank's composition — the source of nonlinearity in the MIQCP."""
         if t == 1:
             return m.I[b, t] * m.C[q, b, t] == m.I0[b] * m.C0[q, b] + sum(
                 m.F[s, b, t] * m.CIN[q, s] for s in m.S if (s, b) in m.A
@@ -182,6 +207,7 @@ def miqcp(data):
     # Variable implication
     @m.Constraint(m.A, m.A, m.T)
     def implication(m, nin1, nout1, nin2, nout2, t):
+        """Prevents simultaneous inflow and outflow on a blending tank at time t: if nout1 == nin2 is a blending tank, at most one of the two arcs can be active."""
         if nout1 in m.B and nout1 == nin2:
             return m.X[nin1, nout1, t] + m.X[nin2, nout2, t] <= 1
         else:
@@ -190,6 +216,7 @@ def miqcp(data):
     # OBJECTIVE
     @m.Objective(sense=pyo.maximize)
     def obj(m):
+        """Maximize net profit: demand revenue - supply cost - fixed arc activation costs - variable arc costs."""
         return sum(
             sum(m.betaT_d[d] * m.F[n, d, t] for d in m.D for n in m.Nin[d])
             - sum(m.betaT_s[s] * m.F[s, n, t] for s in m.S for n in m.Nout[s])
@@ -208,14 +235,13 @@ def miqcp(data):
 
 if __name__ == "__main__":
     # Opening instance
-    with open('instances_json/mpbp_6.json', 'r') as f:
+    with open("instances_json/mpbp_6.json", "r") as f:
         json_obj = json.load(f)
     d = convert_json_to_data(json_obj)
 
-    m = miqcp(d)    # building model
-    
+    m = miqcp(d)  # building model
+
     # Solving with gurobi. If gurobi unavailable - can use any MIQCP/MINLP solver of choice
-    opt = pyo.SolverFactory('gurobi')
+    opt = pyo.SolverFactory("gurobi")
     status = opt.solve(m, tee=True)
     pyo.assert_optimal_termination(status)
-

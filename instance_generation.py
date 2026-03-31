@@ -66,7 +66,7 @@ class InstanceGenerator:
         d["S"] = [f"S{i}" for i in range(1, n_supply + 1)]  # supply nodes
 
         # set of blending tanks for each column
-        for (k, num) in enumerate(blend_arch):
+        for k, num in enumerate(blend_arch):
             d[f"_B_{k+1}"] = [f"B_{k+1}_{i}" for i in range(1, num + 1)]
             final_counter = k + 1
 
@@ -107,7 +107,6 @@ class InstanceGenerator:
         return self.d
 
     def build_parameters(self, demand_TP: int, Fmax: int) -> dict:
-
         """
         Builds the parameters for the instance
 
