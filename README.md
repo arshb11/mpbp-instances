@@ -38,7 +38,7 @@ doi = {10.1021/acs.iecr.5c02853}
 ## References
 [1] Kolodziej S.P., Grossmann I.E., Furman K.C., Sawaya N.W., "A discretization-based approach for the optimization of the multiperiod blend scheduling problem", Computers and Chemical Engineering, 2013. [DOI](https://doi.org/10.1016/j.compchemeng.2013.01.016)
 
-[2] Lotero, I., Trespalacios, F., Grossmann, I. E., Papageorgiou, D. J., & Cheon, M.-S., "An MILP-MINLP decomposition method for the global optimization of a source based model of the multiperiod blending problem". Computers & Chemical Engineering, 2016. [DOI](https://doi.org/10.1016/j.compchemeng.2015.12.017) 
+[2] Lotero, I., Trespalacios, F., Grossmann, I. E., Papageorgiou, D. J., Cheon, M.-S., "An MILP-MINLP decomposition method for the global optimization of a source based model of the multiperiod blending problem", Computers & Chemical Engineering, 2016. [DOI](https://doi.org/10.1016/j.compchemeng.2015.12.017) 
 
 
 
