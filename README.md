@@ -5,7 +5,7 @@ The Multi-Period Blending Problem (MPBP) is a network optimization problem that 
 
 This repository contains 60 instances that can be used by the community to benchmark models and algorithms applied to the blending problem. The instances can be found under the [instances_json](instances_json/) folder. You can clone this repository to access the instances and code.
 
-Along with this we have provided a Pyomo model for the monolithic MIQCP formulation that was proposed by Kolodziej et. al. [1] which can be found in [miqcp.py](miqcp.py)
+Along with this we have provided a Pyomo model for the monolithic MIQCP formulation that was proposed by Kolodziej et. al. [1] which can be found in [miqcp.py](miqcp.py) and the GDP redundant constraint formulation proposed by Lotero et. al. [2]
 Currently, the script is set to solve instance 6, however you can change which instance you want to solve by editing that within the file. The `convert_json_to_data()` function allows you to convert the json file to a `dict` format readable for the model. 
 
 If you want to generate your own instance you can do so using the `InstanceGenerator` class found in [instance_generator.py](instance_generator.py). The instance generator takes information about the number of supply tanks, demand tanks, time periods, components, layout of the blending tanks and the time at what demand begins. If you want to see a mathematical description of the instance generation algorithm please refer to [instance_sizes](instance_sizes.pdf), or to the Supplimental Information section of our paper.
@@ -37,6 +37,8 @@ doi = {10.1021/acs.iecr.5c02853}
 
 ## References
 [1] Kolodziej S.P., Grossmann I.E., Furman K.C., Sawaya N.W., "A discretization-based approach for the optimization of the multiperiod blend scheduling problem", Computers and Chemical Engineering, 2013. [DOI](https://doi.org/10.1016/j.compchemeng.2013.01.016)
+
+[2] Lotero, I., Trespalacios, F., Grossmann, I. E., Papageorgiou, D. J., & Cheon, M.-S., "An MILP-MINLP decomposition method for the global optimization of a source based model of the multiperiod blending problem". Computers & Chemical Engineering, 2016. [DOI](https://doi.org/10.1016/j.compchemeng.2015.12.017) 
 
 
 
