@@ -1,7 +1,39 @@
-import pyomo.environ as pyo
+"""
+Multiperiod Blending Problem (MPBP)
+-------------------------------------
+
+MIQCP formulation of the multiperiod blending problem. The network contains
+supply tanks (S), blending tanks (B), and demand tanks (D) connected by arcs
+over a discrete time horizon T. Arc activation is modelled with binary
+variables X, and the composition dynamics in blending tanks give rise to
+bilinear (quadratic) constraints, making this a Mixed-Integer Quadratically
+Constrained Program (MIQCP).
+
+The objective maximizes net profit: demand revenue minus supply cost, variable
+arc costs, and fixed arc activation costs over all time periods.
+
+References:
+    > Kolodziej S.P., Grossmann I.E., Furman K.C., & Sawaya N.W. (2013), A discretization-based approach for the optimization of the multiperiod blend scheduling problem. Computers and Chemical Engineering, https://doi.org/10.1016/j.compchemeng.2013.01.016
+    > Ovalle, D., Bhatia, A., Laird, C. D., & Grossmann, I. E. (2026). A logic-based decomposition for the global optimization of the multiperiod blending problem using symmetry-breaking cuts. Industrial & Engineering Chemistry Research, 65(7), 3981–3998. https://doi.org/10.1021/acs.iecr.5c02853
+
+Command-line usage:
+    python miqcp.py [--instance INSTANCE] [--solver SOLVER]
+
+    Options:
+        --instance  Path to the JSON instance file.
+                    (default: instances_json/mpbp_6.json)
+        --solver    Name of the solver to use, e.g. gurobi, cplex, glpk.
+                    (default: gurobi)
+
+    Examples:
+        python miqcp.py
+        python miqcp.py --solver cplex
+        python miqcp.py --instance instances_json/mpbp_3.json --solver cplex
+"""
+
 import json
-from utilities import convert_json_to_data, data_preprocessing
-from instance_generation import InstanceGenerator
+import pyomo.environ as pyo
+from utilities import convert_json_to_data
 
 
 def miqcp(data: dict):
@@ -228,20 +260,38 @@ def miqcp(data: dict):
             for t in m.T
         )
 
-    m.is_master = False
-
     return m
 
 
 if __name__ == "__main__":
-    # Opening instance
-    with open("instances_json/mpbp_6.json", "r") as f:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Solve the multiperiod blending problem."
+    )
+    parser.add_argument(
+        "--instance",
+        default="instances_json/mpbp_6.json",
+        help="Path to the JSON instance file (default: instances_json/mpbp_6.json)",
+    )
+    parser.add_argument(
+        "--solver",
+        default="gurobi",
+        help="Name of the solver to use (default: gurobi)",
+    )
+    args = parser.parse_args()
+
+    with open(args.instance, "r") as f:
         json_obj = json.load(f)
     d = convert_json_to_data(json_obj)
 
-    m = miqcp(d)  # building model
+    m = miqcp(d)
 
-    # Solving with gurobi. If gurobi unavailable - can use any MIQCP/MINLP solver of choice
-    opt = pyo.SolverFactory("gurobi")
+    opt = pyo.SolverFactory(args.solver)
+    if not opt.available():
+        raise RuntimeError(
+            f"Solver '{args.solver}' is not available. "
+            "Please install it or pass an available solver name via --solver."
+        )
     status = opt.solve(m, tee=True)
     pyo.assert_optimal_termination(status)
