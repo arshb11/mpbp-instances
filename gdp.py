@@ -1,3 +1,37 @@
+"""
+Multiperiod Blending Problem (MPBP)
+-------------------------------------
+
+GDP formulation of the multiperiod blending problem. The network contains supply
+tanks (S), blending tanks (B), and demand tanks (D) connected by arcs over a
+discrete time horizon T. Each blending tank operates in either charging (inflow)
+or discharging (outflow) mode per time period, determined by GDP disjunctions.
+
+A source-tracking (redundant) formulation decomposes flows and inventories by
+origin, enabling valid linear inequalities for bilinear composition terms.
+
+The objective maximizes net profit: demand revenue minus supply cost, variable
+arc costs, and fixed arc activation costs over all time periods.
+
+References:
+    > Lotero, I., Trespalacios, F., Grossmann, I. E., Papageorgiou, D. J., & Cheon, M.-S. (2016). An MILP-MINLP decomposition method for the global optimization of a source based model of the multiperiod blending problem. Computers & Chemical Engineering, 87, 13–35. https://doi.org/10.1016/j.compchemeng.2015.12.017
+    > Ovalle, D., Bhatia, A., Laird, C. D., & Grossmann, I. E. (2026). A logic-based decomposition for the global optimization of the multiperiod blending problem using symmetry-breaking cuts. Industrial & Engineering Chemistry Research, 65(7), 3981–3998. https://doi.org/10.1021/acs.iecr.5c02853
+
+Command-line usage:
+    python multiperiod_blending.py [--instance INSTANCE] [--solver SOLVER]
+
+    Options:
+        --instance  Path to the JSON instance file.
+                    (default: instances_json/mpbp_6.json)
+        --solver    Name of the solver to use, e.g. gurobi, cplex, glpk.
+                    (default: gurobi)
+
+    Examples:
+        python multiperiod_blending.py
+        python multiperiod_blending.py --solver cplex
+        python multiperiod_blending.py --instance instances_json/mpbp_3.json --solver cplex
+"""
+
 import ast
 import json
 import pyomo.environ as pyo
@@ -5,7 +39,7 @@ from pyomo.gdp import Disjunct, Disjunction
 from utilities import convert_json_to_data
 
 
-def build_model(data: dict):
+def build_model(data: dict = None):
     """
     Build the multiperiod blending problem (MPBP) as a Pyomo GDP model.
 
@@ -20,6 +54,17 @@ def build_model(data: dict):
     m : pyo.ConcreteModel
         Pyomo GDP model ready for transformation (e.g., ``gdp.bigm``) and solution.
     """
+
+    if data is None:
+        import os
+
+        default_path = os.path.join(
+            os.path.dirname(__file__),
+            "instances_json",
+            "mpbp_6.json",
+        )
+        with open(default_path, "r") as f:
+            data = convert_json_to_data(json.load(f))
 
     # PYOMO MODEL
     m = pyo.ConcreteModel()
@@ -395,7 +440,7 @@ def build_model(data: dict):
         elif nout in m.B:
             return m.X_nb[nin, nout, t].indicator_var.implies(
                 m.YB_not[nin, t].indicator_var
-            )  # TODO Not in formulation
+            )
         else:
             return pyo.LogicalConstraint.Skip
 
@@ -408,7 +453,7 @@ def build_model(data: dict):
         else:
             return pyo.Constraint.Skip
 
-    @m.Constraint(m.R, m.A, m.T)  # TODO: Is it forall t?
+    @m.Constraint(m.R, m.A, m.T)
     def ftil_bn_fix(m, r, nin, nout, t):
         """For blending-origin arcs, fix F_til[r, nin, nout, t] == F[nin, nout, t] when r == nin."""
         if nin in m.B and r == nin:
@@ -448,16 +493,36 @@ def build_model(data: dict):
 
 
 if __name__ == "__main__":
-    # Opening instance
-    with open("instances_json/mpbp_6.json", "r") as f:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Solve the multiperiod blending problem."
+    )
+    parser.add_argument(
+        "--instance",
+        default="instances_json/mpbp_6.json",
+        help="Path to the JSON instance file (default: instances_json/mpbp_6.json)",
+    )
+    parser.add_argument(
+        "--solver",
+        default="gurobi",
+        help="Name of the solver to use (default: gurobi)",
+    )
+    args = parser.parse_args()
+
+    with open(args.instance, "r") as f:
         json_obj = json.load(f)
     d = convert_json_to_data(json_obj)
 
-    m = build_model(d)  # building model
+    m = build_model(d)
     pyo.TransformationFactory("core.logical_to_linear").apply_to(m)
     pyo.TransformationFactory("gdp.bigm").apply_to(m)
 
-    # Solving with gurobi. If gurobi unavailable - can use any MIQCP/MINLP solver of choice
-    opt = pyo.SolverFactory("gurobi")
+    opt = pyo.SolverFactory(args.solver)
+    if not opt.available():
+        raise RuntimeError(
+            f"Solver '{args.solver}' is not available. "
+            "Please install it or pass an available solver name via --solver."
+        )
     status = opt.solve(m, tee=True)
     pyo.assert_optimal_termination(status)
